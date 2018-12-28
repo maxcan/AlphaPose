@@ -1,10 +1,17 @@
-torch==0.4.0
 torchvision
 -e git+https://github.com/ncullen93/torchsample.git#egg=torchsample
 visdom
 nibabel
+torch==0.4.1
 pandas
 tqdm
 matplotlib
 opencv-python
 ntpath
+
+munkres==1.0.12
+numpy
+scipy
+image
+Pillow
+opencv-contrib-python

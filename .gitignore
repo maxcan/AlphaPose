@@ -22,3 +22,4 @@ images
 *.weights
 
 coco-minival/
+.venv
