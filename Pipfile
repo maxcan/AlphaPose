@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+torch = "==0.4.1"
+torchvision = "*"
+torchsample = {editable = true, git = "https://github.com/ncullen93/torchsample.git"}
+visdom = "*"
+nibabel = "*"
+pandas = "*"
+tqdm = "==4.23.4"
+matplotlib = "==2.2.2"
+opencv-python = "==3.4.2.16"
+ntpath = "*"
+munkres = "==1.0.12"
+numpy = "==1.14.5"
+scipy = "==1.1.0"
+opencv-contrib-python = "==3.4.2.16"
+image = "==1.5.25"
+Pillow = "==5.3.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.6"
