@@ -6,7 +6,6 @@ pandas
 tqdm
 matplotlib
 opencv-python
-ntpath
 
 munkres==1.0.12
 numpy
