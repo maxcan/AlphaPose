@@ -1,12 +1,17 @@
-FROM python:3.7
-
+FROM nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04
 RUN mkdir /app
-ADD PoseFlow /app/
-ADD ./*.py /app/
-ADD SPPE /app/
-ADD train_sppe /app/
-ADD yolo /app/
-ADD models /app/
-ADD requirements.txt /app/
 WORKDIR /app
-RUN pip install -r requirements.txt
+COPY requirements.txt /app/
+RUN apt-get update
+RUN apt-get install -y python3-pip python3
+RUN apt-get install -y git
+
+RUN pip3 install -r requirements.txt
+COPY PoseFlow /app/PoseFlow
+COPY ./*.py /app/
+COPY SPPE /app/SPPE
+COPY train_sppe /app/train
+COPY yolo /app/yolo
+COPY models /app/models
+RUN apt-get install -y libsm6 libxext6
+RUN apt-get install -y libxrender-dev
