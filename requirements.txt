@@ -7,9 +7,10 @@ pandas
 tqdm
 matplotlib
 opencv-python
-
+boto3
 munkres==1.0.12
 numpy
+requests
 scipy
 image
 Pillow
