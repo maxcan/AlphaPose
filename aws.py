@@ -24,10 +24,10 @@ if __name__ == "__main__":
         print(f'tmp_path: {tmp_path}')
         print(f'tmp_path exists?: {tmp_path.exists()}')
         print(f's3_key_path: {s3_key_path}')
-        #  if (tmp_path.exists()): tmp_path.unlink()
+        if (tmp_path.exists()): tmp_path.unlink()
         print(f'about to download to: {tmp_path}')
         s3_bucket = os.environ['karada_s3_bucket']
-        # s3.download_file(s3_bucket, s3_key, str(tmp_path))
+        s3.download_file(s3_bucket, s3_key, str(tmp_path))
         size = os.stat(tmp_path).st_size
         print(f'downloaded {size} bytes.. running karada')
         os.environ['AP_ARGS_OVERRIDE'] = f'--video {str(tmp_path)} --outdir {str(output_path)} --save_video --sp'
