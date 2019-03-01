@@ -54,6 +54,10 @@ if __name__ == "__main__":
                 print(f'uploading {file} from {output_path}')
                 s3.upload_file(os.path.join(root,file), s3_bucket , f'output/{output_uuid}/{file}')
         print(f'clearing')
+        for root,dirs,files in os.walk(output_path):
+            for file in files:
+                print(f'removing {file} from {output_path}')
+                Path(file).unlink()
         output_path.rmdir()
         tmp_path.unlink()
         print(f'done')
