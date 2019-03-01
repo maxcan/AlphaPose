@@ -2,7 +2,6 @@ import boto3
 from pathlib import Path
 import os
 import requests
-import karada
 
 path_root = Path("/tmp")
 if __name__ == "__main__":
@@ -31,19 +30,24 @@ if __name__ == "__main__":
         # s3.download_file(s3_bucket, s3_key, str(tmp_path))
         size = os.stat(tmp_path).st_size
         print(f'downloaded {size} bytes.. running karada')
+        os.environ['AP_ARGS_OVERRIDE'] = f'--video {str(tmp_path)} --outdir {str(output_path)} --save_video --sp'
+        from opt import  reload
+        reload()
 
-        karada.run(video=str(tmp_path),
-            mode="normal",
-            outputpath=str(output_path),
-            detbatch=1,
-            fast_inference=True,
-            dataset='coco',
-            save_video=True, # save the rendered video
-            posebatch=80,
-            profile=False,
-            save_img=False,
-            vis_fast=False
-            )
+        import karada
+        karada.run()
+        # video=str(tmp_path),
+        #     mode="normal",
+        #     outputpath=str(output_path),
+        #     detbatch=1,
+        #     fast_inference=True,
+        #     dataset='coco',
+        #     save_video=True, # save the rendered video
+        #     posebatch=80,
+        #     profile=False,
+        #     save_img=False,
+        #     vis_fast=False
+        #     )
 
         for root,dirs,files in os.walk(output_path):
             for file in files:

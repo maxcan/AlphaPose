@@ -22,40 +22,39 @@ import cv2
 
 from pPose_nms import pose_nms, write_json
 
-# kwargs = opt
-# kwargs['dataset'] = 'coco'
-# if not kwargs['sp']:
-#     torch.multiprocessing.set_start_method('forkserver', force=True)
-#     torch.multiprocessing.set_sharing_strategy('file_system')
+args = opt
+args.dataset = 'coco'
+if not args.sp:
+    torch.multiprocessing.set_start_method('forkserver', force=True)
+    torch.multiprocessing.set_sharing_strategy('file_system')
 
-def run(**kwargs):
-    print(f'Running karada {kwargs}')
-    videofile = kwargs['video']
-    mode = kwargs['mode']
-    if not os.path.exists(kwargs['outputpath']):
-        os.mkdir(kwargs['outputpath'])
+def run():
+    videofile = args.video
+    mode = args.mode
+    print('karada args')
+    print(args)
+    if not os.path.exists(args.outputpath):
+        os.mkdir(args.outputpath)
     
     if not len(videofile):
         raise IOError('Error: must contain --video')
 
     # Load input video
-    print('about to load vidoe')
-    data_loader = VideoLoader(videofile, batchSize=kwargs['detbatch']).start()
+    data_loader = VideoLoader(videofile, batchSize=args.detbatch).start()
     (fourcc,fps,frameSize) = data_loader.videoinfo()
 
     # Load detection loader
     print('Loading YOLO model..')
     sys.stdout.flush()
-    det_loader = DetectionLoader(data_loader, batchSize=kwargs['detbatch']).start()
+    det_loader = DetectionLoader(data_loader, batchSize=args.detbatch).start()
     det_processor = DetectionProcessor(det_loader).start()
     
-    print('# Load pose model')
+    # Load pose model
     pose_dataset = Mscoco()
-    if kwargs['fast_inference']:
+    if args.fast_inference:
         pose_model = InferenNet_fast(4 * 1 + 1, pose_dataset)
     else:
         pose_model = InferenNet(4 * 1 + 1, pose_dataset)
-    print('about to cuda')
     pose_model.cuda()
     pose_model.eval()
 
@@ -65,14 +64,12 @@ def run(**kwargs):
         'pn': []
     }
 
-    print('about to write videos')
     # Data writer
-    save_path = os.path.join(kwargs['outputpath'], 'AlphaPose_'+ntpath.basename(videofile).split('.')[0]+'.avi')
-    writer = DataWriter(kwargs['save_video'], save_path, cv2.VideoWriter_fourcc(*'XVID'), fps, frameSize).start()
+    save_path = os.path.join(args.outputpath, 'AlphaPose_'+ntpath.basename(videofile).split('.')[0]+'.avi')
+    writer = DataWriter(args.save_video, save_path, cv2.VideoWriter_fourcc(*'XVID'), fps, frameSize).start()
 
-    im_names_desc =  range(data_loader.length())
-    # im_names_desc =  tqdm(range(data_loader.length()))
-    batchSize = kwargs['posebatch']
+    im_names_desc =  tqdm(range(data_loader.length()))
+    batchSize = args.posebatch
     for i in im_names_desc:
         start_time = getTime()
         with torch.no_grad():
@@ -107,7 +104,7 @@ def run(**kwargs):
             ckpt_time, post_time = getTime(ckpt_time)
             runtime_profile['pn'].append(post_time)
 
-        if kwargs['profile']:
+        if args.profile:
             # TQDM
             im_names_desc.set_description(
             'det time: {dt:.3f} | pose time: {pt:.2f} | post processing: {pn:.4f}'.format(
@@ -115,11 +112,11 @@ def run(**kwargs):
             )
 
     print('===========================> Finish Model Running.')
-    if (kwargs['save_img'] or kwargs['save_video']) and not kwargs['vis_fast']:
+    if (args.save_img or args.save_video) and not args.vis_fast:
         print('===========================> Rendering remaining images in the queue...')
         print('===========================> If this step takes too long, you can enable the --vis_fast flag to use fast rendering (real-time).')
     while(writer.running()):
         pass
     writer.stop()
     final_result = writer.results()
-    write_json(final_result, kwargs['outputpath'])
+    write_json(final_result, args.outputpath)

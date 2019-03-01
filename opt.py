@@ -1,4 +1,5 @@
 import argparse
+import os
 import torch
 
 parser = argparse.ArgumentParser(description='PyTorch AlphaPose Training')
@@ -143,6 +144,12 @@ parser.add_argument('--save_video', dest='save_video',
                     help='whether to save rendered video', default=False, action='store_true')
 parser.add_argument('--vis_fast', dest='vis_fast',
                     help='use fast rendering', action='store_true', default=False)
-opt = parser.parse_args()
+ARGS_KEY = 'AP_ARGS_OVERRIDE'
+print('----- parsing args --- ' )
+opt = parser.parse_args(os.environ[ARGS_KEY].split(' ')) if ARGS_KEY in os.environ else parser.parse_args()
+
+def reload():
+    print(os.environ[ARGS_KEY].split(' '))
+    opt = parser.parse_args(os.environ[ARGS_KEY].split(' ')) if ARGS_KEY in os.environ else parser.parse_args()
 
 opt.num_classes = 80
