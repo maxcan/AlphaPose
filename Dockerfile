@@ -3,8 +3,7 @@ RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt /app/
 RUN apt-get update
-RUN apt-get install -y python3-pip python3
-RUN apt-get install -y git
+RUN apt-get install -y python3-pip python3 libglib2.0-0 git
 
 RUN pip3 install -r requirements.txt
 COPY PoseFlow /app/PoseFlow

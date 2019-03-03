@@ -6,7 +6,7 @@ import requests
 path_root = Path("/tmp")
 if __name__ == "__main__":
 
-    print("aws.py starting up v107")
+    print("aws.py starting up v1025")
     print(os.environ)
     try:
         s3 = boto3.client('s3')
@@ -30,34 +30,26 @@ if __name__ == "__main__":
         s3.download_file(s3_bucket, s3_key, str(tmp_path))
         size = os.stat(str(tmp_path)).st_size
         print('downloaded ' , size , ' bytes.. running karada')
-        os.environ['AP_ARGS_OVERRIDE'] = '--video ' , str(tmp_path) , ' --outdir {str(output_path)} --save_video --sp'
+        os.environ['AP_ARGS_OVERRIDE'] = '--video ' + str(tmp_path) + ' --outdir ' + str(output_path) + ' --save_video --sp'
         from opt import  reload
         reload()
 
         import karada
         karada.run()
-        # video=str(tmp_path),
-        #     mode="normal",
-        #     outputpath=str(output_path),
-        #     detbatch=1,
-        #     fast_inference=True,
-        #     dataset='coco',
-        #     save_video=True, # save the rendered video
-        #     posebatch=80,
-        #     profile=False,
-        #     save_img=False,
-        #     vis_fast=False
-        #     )
-
-        for root,dirs,files in os.walk(output_path):
+        
+        for root,dirs,files in os.walk(str(output_path)):
             for file in files:
-                print('uploading {file} from {output_path}')
-                s3.upload_file(os.path.join(root,file), s3_bucket , 'output/{output_uuid}/{file}')
+                print('DEBUG: file = ' + file + ' AND ROOT = ' + root)
+                full_file = os.path.join(root, file)
+                output_key  = 'output/' + output_uuid + '/' + file
+                print('uploading ' + full_file + ' to ' + output_key)
+                s3.upload_file(os.path.join(root,file), s3_bucket , output_key)
         print('clearing')
-        for root,dirs,files in os.walk(output_path):
+        for root,dirs,files in os.walk(str(output_path)):
             for file in files:
-                print('removing {file} from {output_path}')
-                Path(file).unlink()
+                full_file = os.path.join(root, file)
+                print('removing ' + full_file)
+                Path(full_file).unlink()
         output_path.rmdir()
         tmp_path.unlink()
         print('done')
