@@ -14,23 +14,23 @@ if __name__ == "__main__":
         #     print(bucket.name)
         s3_key = os.environ['karada_s3_key']
         output_uuid = os.environ['karada_output_uuid']
-        print(f's3Key  = {s3_key}')
+        print('s3Key  = ' , s3_key)
         s3_key_path = Path(s3_key)
         tmp_path = path_root / s3_key_path.name
         output_path = path_root / output_uuid
-        print(f'about to mk path {output_path}')
+        print('about to mk path ' , output_path)
         if (output_path.exists()): output_path.rmdir()
         output_path.mkdir(parents=True)
-        print(f'tmp_path: {tmp_path}')
-        print(f'tmp_path exists?: {tmp_path.exists()}')
-        print(f's3_key_path: {s3_key_path}')
+        print('tmp_path: ' , tmp_path)
+        print('tmp_path exists?: ' , tmp_path.exists())
+        print('s3_key_path: ' , s3_key_path)
         if (tmp_path.exists()): tmp_path.unlink()
-        print(f'about to download to: {tmp_path}')
+        print('about to download to: ' , tmp_path)
         s3_bucket = os.environ['karada_s3_bucket']
         s3.download_file(s3_bucket, s3_key, str(tmp_path))
         size = os.stat(tmp_path).st_size
-        print(f'downloaded {size} bytes.. running karada')
-        os.environ['AP_ARGS_OVERRIDE'] = f'--video {str(tmp_path)} --outdir {str(output_path)} --save_video --sp'
+        print('downloaded ' , size , ' bytes.. running karada')
+        os.environ['AP_ARGS_OVERRIDE'] = '--video ' , str(tmp_path) , ' --outdir {str(output_path)} --save_video --sp'
         from opt import  reload
         reload()
 
@@ -51,16 +51,16 @@ if __name__ == "__main__":
 
         for root,dirs,files in os.walk(output_path):
             for file in files:
-                print(f'uploading {file} from {output_path}')
-                s3.upload_file(os.path.join(root,file), s3_bucket , f'output/{output_uuid}/{file}')
-        print(f'clearing')
+                print('uploading {file} from {output_path}')
+                s3.upload_file(os.path.join(root,file), s3_bucket , 'output/{output_uuid}/{file}')
+        print('clearing')
         for root,dirs,files in os.walk(output_path):
             for file in files:
-                print(f'removing {file} from {output_path}')
+                print('removing {file} from {output_path}')
                 Path(file).unlink()
         output_path.rmdir()
         tmp_path.unlink()
-        print(f'done')
+        print('done')
 
     except Exception as inst:
          print(type(inst))    # the exception instance
