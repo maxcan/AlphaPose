@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.2-cudnn7-runtime-ubuntu18.04
+FROM nvidia/cuda:9.2-cudnn7-devel
 RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt /app/
