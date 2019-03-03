@@ -28,7 +28,7 @@ if __name__ == "__main__":
         print('about to download to: ' , tmp_path)
         s3_bucket = os.environ['karada_s3_bucket']
         s3.download_file(s3_bucket, s3_key, str(tmp_path))
-        size = os.stat(tmp_path).st_size
+        size = os.stat(str(tmp_path)).st_size
         print('downloaded ' , size , ' bytes.. running karada')
         os.environ['AP_ARGS_OVERRIDE'] = '--video ' , str(tmp_path) , ' --outdir {str(output_path)} --save_video --sp'
         from opt import  reload
