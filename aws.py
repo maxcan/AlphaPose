@@ -13,11 +13,11 @@ if __name__ == "__main__":
         # for bucket in s3.buckets.all():
         #     print(bucket.name)
         s3_key = os.environ['karada_s3_key']
-        output_uuid = os.environ['karada_output_uuid']
+        output_prefix = os.environ['karada_output_prefix']
         print('s3Key  = ' , s3_key)
         s3_key_path = Path(s3_key)
         tmp_path = path_root / s3_key_path.name
-        output_path = path_root / output_uuid
+        output_path = path_root / output_prefix
         print('about to mk path ' , output_path)
         if (output_path.exists()): output_path.rmdir()
         output_path.mkdir(parents=True)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
             for file in files:
                 print('DEBUG: file = ' + file + ' AND ROOT = ' + root)
                 full_file = os.path.join(root, file)
-                output_key  = 'output/' + output_uuid + '/' + file
+                output_key  = output_prefix + '/' + file
                 print('uploading ' + full_file + ' to ' + output_key)
                 s3.upload_file(os.path.join(root,file), s3_bucket , output_key)
         print('clearing')
