@@ -25,8 +25,9 @@ if __name__ == "__main__":
         print('tmp_path exists?: ' , tmp_path.exists())
         print('s3_key_path: ' , s3_key_path)
         if (tmp_path.exists()): tmp_path.unlink()
-        print('about to download to: ' , tmp_path)
+        print('about to flag and download to: ' , tmp_path)
         s3_bucket = os.environ['karada_s3_bucket']
+        s3.put_object(Body=b'Started Processing Flag', Bucket=s3_bucket, Key=output_prefix + '/process_start_flag')
         s3.download_file(s3_bucket, s3_key, str(tmp_path))
         size = os.stat(str(tmp_path)).st_size
         print('downloaded ' , size , ' bytes.. running karada')
@@ -42,6 +43,8 @@ if __name__ == "__main__":
                 print('DEBUG: file = ' + file + ' AND ROOT = ' + root)
                 full_file = os.path.join(root, file)
                 output_key  = output_prefix + '/' + file
+                output_key = re.sub("alphapose","pose", output_key, flags=re.IGNORECASE)
+
                 print('uploading ' + full_file + ' to ' + output_key)
                 s3.upload_file(os.path.join(root,file), s3_bucket , output_key)
         print('clearing')
