@@ -28,3 +28,4 @@ images
 
 coco-minival/
 .venv
+.env
