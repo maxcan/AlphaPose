@@ -15,4 +15,3 @@ COPY models /app/models
 RUN apt-get install -y libsm6 libxext6
 RUN apt-get install -y libxrender-dev
 
-CMD python3 aws.py

@@ -7,5 +7,5 @@ if [ -z ${BASE_TAG+x} ]; then BASE_TAG=latest; fi
 
 echo $BASE_TAG
 cd ..
-docker build -t 840787491930.dkr.ecr.us-west-2.amazonaws.com/ap_karada_root:${BASE_TAG} . &&  docker push 840787491930.dkr.ecr.us-west-2.amazonaws.com/ap_karada_root:${BASE_TAG}
+docker build -t 840787491930.dkr.ecr.us-west-2.amazonaws.com/ap_karada_base:${BASE_TAG} . &&  docker push 840787491930.dkr.ecr.us-west-2.amazonaws.com/ap_karada_base:${BASE_TAG}
 cd -
