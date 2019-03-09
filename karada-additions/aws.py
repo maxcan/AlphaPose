@@ -54,6 +54,9 @@ if __name__ == "__main__":
                 print(status)
             karada.run(on_iter=on_iter, on_frame_count=on_frame_count, report_batch_size=48)
             
+            # Output complete
+            status = json.dumps({"total": karada_run_frame_count, "done": karada_run_frame_count, "date": datetime.datetime.now().isoformat()})
+            s3.put_object(Body=status.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/progress.json')
             for root,dirs,files in os.walk(str(output_path)):
                 for file in files:
                     print('DEBUG: file = ' + file + ' AND ROOT = ' + root)
