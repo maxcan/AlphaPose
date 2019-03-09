@@ -1,7 +1,9 @@
 import boto3
 from pathlib import Path
 import os
+import json
 import requests
+import datetime
 
 path_root = Path("/tmp")
 if __name__ == "__main__":
@@ -36,7 +38,14 @@ if __name__ == "__main__":
         reload()
 
         import karada
-        karada.run()
+        total_frames = 0
+        def on_frame_count(count):
+            total_frames = count
+        def on_iter(count):
+            status = json.dumps({"total": total_frames, "done": count, "date": datetime.datetime.now()})
+            s3.put_object(Body=status.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/progress.json')
+            print(status)
+        karada.run(on_iter=on_iter, on_frame_count: on_frame_count, report_batch_size=48)
         
         for root,dirs,files in os.walk(str(output_path)):
             for file in files:

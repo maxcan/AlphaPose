@@ -15,7 +15,7 @@ from SPPE.src.main_fast_inference import *
 import ntpath
 import os
 import sys
-from tqdm import tqdm
+# from tqdm import tqdm
 import time
 from fn import getTime
 import cv2
@@ -28,7 +28,7 @@ if not args.sp:
     torch.multiprocessing.set_start_method('forkserver', force=True)
     torch.multiprocessing.set_sharing_strategy('file_system')
 
-def run():
+def run(on_iter=None, on_frame_count = None, report_batch_size=24):
     videofile = args.video
     mode = args.mode
     print('karada args')
@@ -68,8 +68,10 @@ def run():
     save_path = os.path.join(args.outputpath, 'AlphaPose_'+ntpath.basename(videofile).split('.')[0]+'.avi')
     writer = DataWriter(args.save_video, save_path, cv2.VideoWriter_fourcc(*'XVID'), fps, frameSize).start()
 
-    im_names_desc =  tqdm(range(data_loader.length()))
+    im_names_desc =  tqdm(range(data_loader.length())) if (on_iter is None) else range(data_loader.length())
+    if (on_frame_count): on_frame_count(data_loader.length())
     batchSize = args.posebatch
+    iter_count = 0
     for i in im_names_desc:
         start_time = getTime()
         with torch.no_grad():
@@ -110,6 +112,10 @@ def run():
             'det time: {dt:.3f} | pose time: {pt:.2f} | post processing: {pn:.4f}'.format(
                 dt=np.mean(runtime_profile['dt']), pt=np.mean(runtime_profile['pt']), pn=np.mean(runtime_profile['pn']))
             )
+        iter_count = iter_count + 1
+        if (on_iter is not None and ((iter_count % report_batch_size) == 0)):
+            on_iter(iter_count)
+
 
     print('===========================> Finish Model Running.')
     if (args.save_img or args.save_video) and not args.vis_fast:
