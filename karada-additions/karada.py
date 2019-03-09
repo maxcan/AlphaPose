@@ -43,6 +43,13 @@ def run(on_iter=None, on_frame_count = None, report_batch_size=24):
     data_loader = VideoLoader(videofile, batchSize=args.detbatch).start()
     (fourcc,fps,frameSize) = data_loader.videoinfo()
 
+    # Data writer
+    # extension = Path(args.video).suffix
+    save_path = os.path.join(args.outputpath, 'pose_'+ntpath.basename(videofile).split('.')[0]+'.mp4')
+    # writer = DataWriter(args.save_video, save_path, (fourcc), fps, frameSize).start()
+    writer = DataWriter(args.save_video, save_path, cv2.VideoWriter_fourcc(*'MP4V'), fps, frameSize).start()
+    # writer = DataWriter(args.save_video, save_path, fourcc, fps, frameSize).start()
+
     # Load detection loader
     print('Loading YOLO model..')
     sys.stdout.flush()
@@ -64,12 +71,8 @@ def run(on_iter=None, on_frame_count = None, report_batch_size=24):
         'pn': []
     }
 
-    # Data writer
-    save_path = os.path.join(args.outputpath, 'AlphaPose_'+ntpath.basename(videofile).split('.')[0]+'.avi')
-    writer = DataWriter(args.save_video, save_path, cv2.VideoWriter_fourcc(*'XVID'), fps, frameSize).start()
-
     im_names_desc =  tqdm(range(data_loader.length())) if (on_iter is None) else range(data_loader.length())
-    if (on_frame_count): on_frame_count(data_loader.length())
+    if (on_frame_count is not None): on_frame_count(data_loader.length())
     batchSize = args.posebatch
     iter_count = 0
     for i in im_names_desc:
