@@ -28,7 +28,7 @@ if not args.sp:
     torch.multiprocessing.set_start_method('forkserver', force=True)
     torch.multiprocessing.set_sharing_strategy('file_system')
 
-def run(on_iter=None, on_frame_count = None, report_batch_size=24):
+def run(on_iter=None, on_metadata = None, report_batch_size=24, output_filename="pose_basic.mp4"):
     videofile = args.video
     mode = args.mode
     print('karada args')
@@ -45,7 +45,8 @@ def run(on_iter=None, on_frame_count = None, report_batch_size=24):
 
     # Data writer
     # extension = Path(args.video).suffix
-    save_path = os.path.join(args.outputpath, 'pose_'+ntpath.basename(videofile).split('.')[0]+'.mp4')
+    save_path = os.path.join(args.outputpath, output_filename)
+    # save_path = os.path.join(args.outputpath, 'pose_'+ntpath.basename(videofile).split('.')[0]+'.mp4')
     # writer = DataWriter(args.save_video, save_path, (fourcc), fps, frameSize).start()
     writer = DataWriter(args.save_video, save_path, cv2.VideoWriter_fourcc(*'MP4V'), fps, frameSize).start()
     # writer = DataWriter(args.save_video, save_path, fourcc, fps, frameSize).start()
@@ -72,7 +73,13 @@ def run(on_iter=None, on_frame_count = None, report_batch_size=24):
     }
 
     im_names_desc =  tqdm(range(data_loader.length())) if (on_iter is None) else range(data_loader.length())
-    if (on_frame_count is not None): on_frame_count(data_loader.length())
+    if (on_metadata is not None): on_metadata({
+        'fps': fps,
+        'file_size': os.path.getsize(videofile),
+        'width': frameSize[0],
+        'height': frameSize[1],
+        'length': data_loader.length()
+    })
     batchSize = args.posebatch
     iter_count = 0
     for i in im_names_desc:

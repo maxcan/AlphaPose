@@ -43,16 +43,18 @@ if __name__ == "__main__":
 
             import karada
             karada_run_frame_count = 0
-            def on_frame_count(count):
-                print('total frames ' + str(count))
+            def on_metadata(video_md):
                 # a bit hackish..  
                 global karada_run_frame_count
-                karada_run_frame_count = count
+                karada_run_frame_count = video_md['length']
+                print('total frames ' + str(karada_run_frame_count))
+                md = json.dumps(video_md)
+                s3.put_object(Body=md.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/upload_metadata.json')
             def on_iter(count):
                 status = json.dumps({"total": karada_run_frame_count, "done": count, "date": datetime.datetime.now().isoformat()})
                 s3.put_object(Body=status.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/progress.json')
                 print(status)
-            karada.run(on_iter=on_iter, on_frame_count=on_frame_count, report_batch_size=48)
+            karada.run(on_iter=on_iter, on_metadata=on_metadata, report_batch_size=48)
             
             # Output complete
             status = json.dumps({"total": karada_run_frame_count, "done": karada_run_frame_count, "date": datetime.datetime.now().isoformat()})
