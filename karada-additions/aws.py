@@ -54,7 +54,7 @@ if __name__ == "__main__":
                 status = json.dumps({"total": karada_run_frame_count, "done": count, "date": datetime.datetime.now().isoformat()})
                 s3.put_object(Body=status.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/progress.json')
                 print(status)
-            karada.run(on_iter=on_iter, on_metadata=on_metadata, report_batch_size=48)
+            karada.run(on_iter=on_iter, on_metadata=on_metadata, report_batch_size=48, thumbnail_path=str(output_path / 'thumbnail.png'))
             
             # Output complete
             status = json.dumps({"total": karada_run_frame_count, "done": karada_run_frame_count, "date": datetime.datetime.now().isoformat()})

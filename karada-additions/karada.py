@@ -28,7 +28,7 @@ if not args.sp:
     torch.multiprocessing.set_start_method('forkserver', force=True)
     torch.multiprocessing.set_sharing_strategy('file_system')
 
-def run(on_iter=None, on_metadata = None, report_batch_size=24, output_filename="pose_basic.mp4"):
+def run(on_iter=None, on_metadata = None, report_batch_size=24, output_filename="pose_basic.mp4", thumbnail_path="thumbnail.png"):
     videofile = args.video
     mode = args.mode
     print('karada args')
@@ -91,6 +91,9 @@ def run(on_iter=None, on_metadata = None, report_batch_size=24, output_filename=
             if boxes is None or boxes.nelement() == 0:
                 writer.save(None, None, None, None, None, orig_img, im_name.split('/')[-1])
                 continue
+            if iter_count == 0:
+                print('Saving frame to ', thumbnail_path)
+                cv2.imwrite(thumbnail_path, orig_img)
 
             ckpt_time, det_time = getTime(start_time)
             runtime_profile['dt'].append(det_time)
