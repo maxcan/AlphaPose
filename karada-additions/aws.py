@@ -1,4 +1,5 @@
 import boto3
+import magic
 import re
 from pathlib import Path
 import os
@@ -43,13 +44,25 @@ if __name__ == "__main__":
 
             import karada
             karada_run_frame_count = 0
+            global results_md
             def on_metadata(video_md):
                 # a bit hackish..  
                 global karada_run_frame_count
                 karada_run_frame_count = video_md['length']
                 print('total frames ' + str(karada_run_frame_count))
+                content_type = magic.from_file(tmp_path, mime=True)
+                video_md['content_type'] = content_type
                 md = json.dumps(video_md)
                 s3.put_object(Body=md.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/upload_metadata.json')
+                magic.from_file("testdata/test.pdf")
+
+                global results_md
+                results_md = json.dumps({'fps': video_md['fps'],
+                        'width': video_md['width'],
+                        'height': video_md['height'],
+                        'length': video_md['length'],
+                        'content_type': 'video/mp4'})
+
             def on_iter(count):
                 status = json.dumps({"total": karada_run_frame_count, "done": count, "date": datetime.datetime.now().isoformat()})
                 s3.put_object(Body=status.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/progress.json')
@@ -64,7 +77,7 @@ if __name__ == "__main__":
                     print('DEBUG: file = ' + file + ' AND ROOT = ' + root)
                     full_file = os.path.join(root, file)
                     output_key  = output_prefix + '/' + file
-                    output_key = re.sub("alphapose","pose", output_key, flags=re.IGNORECASE)
+                    output_key = re.sub("alphapose-","pose_", output_key, flags=re.IGNORECASE)
     
                     print('uploading ' + full_file + ' to ' + output_key)
                     s3.upload_file(os.path.join(root,file), s3_bucket , output_key)
@@ -76,6 +89,10 @@ if __name__ == "__main__":
                     Path(full_file).unlink()
             output_path.rmdir()
             tmp_path.unlink()
+            print('Uploading results MD: ' + results_md)
+            s3.put_object(Body=results_md.encode('utf-8'),
+                    Bucket=s3_bucket,
+                    Key=output_prefix + '/pose_basic.mp4_metadata.json')
             print('done')
     
     except Exception as inst:
