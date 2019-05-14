@@ -49,10 +49,13 @@ if __name__ == "__main__":
                 # a bit hackish..  
                 global karada_run_frame_count
                 karada_run_frame_count = video_md['length']
-                print('total frames ' + str(karada_run_frame_count))
+                print('[on metadata] total frames:: ' + str(karada_run_frame_count))
+                print('[on metadata] path: ' + tmp_path)
                 content_type = magic.from_file(tmp_path, mime=True)
                 video_md['content_type'] = content_type
+                print('[on metadata] about to dump json')
                 md = json.dumps(video_md)
+                print('[on metadata] about to put_object')
                 s3.put_object(Body=md.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/upload_metadata.json')
                 magic.from_file("testdata/test.pdf")
 
@@ -69,6 +72,7 @@ if __name__ == "__main__":
                 print(status)
             karada.run(on_iter=on_iter, on_metadata=on_metadata, report_batch_size=48, thumbnail_path=str(output_path / 'thumbnail.png'))
             
+            print('[aws.py:74] output complete')
             # Output complete
             status = json.dumps({"total": karada_run_frame_count, "done": karada_run_frame_count, "date": datetime.datetime.now().isoformat()})
             s3.put_object(Body=status.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/progress.json')
