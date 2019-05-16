@@ -92,7 +92,7 @@ def run(on_iter=None, on_metadata = None, report_batch_size=24, output_filename=
                 writer.save(None, None, None, None, None, orig_img, im_name.split('/')[-1])
                 continue
             if iter_count == 0:
-                print('Saving frame to ', thumbnail_path)
+                print('Saving frame to ', str(thumbnail_path))
                 cv2.imwrite(thumbnail_path, orig_img)
 
             ckpt_time, det_time = getTime(start_time)

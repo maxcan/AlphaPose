@@ -7,10 +7,11 @@ import json
 import requests
 import datetime
 import tempfile
+from version import version
 
 if __name__ == "__main__":
 
-    print("aws.py starting up v1025")
+    print('Running Version: ' + version)
     print(os.environ)
     try:
         s3 = boto3.client('s3')
@@ -25,14 +26,13 @@ if __name__ == "__main__":
             path_root = Path(tmpdirname)
             tmp_path = path_root / s3_key_path.name
             output_path = path_root / output_prefix
-            print('about to mk path ' , output_path)
+            print('about to mk path ' , str(output_path))
             if (output_path.exists()): output_path.rmdir()
             output_path.mkdir(parents=True)
-            print('tmp_path: ' , tmp_path)
+            print('tmp_path: ' , str(tmp_path))
             print('tmp_path exists?: ' , tmp_path.exists())
             print('s3_key_path: ' , s3_key_path)
             if (tmp_path.exists()): tmp_path.unlink()
-            print('about to flag and download to: ' , tmp_path)
             s3_bucket = os.environ['karada_s3_bucket']
             # s3.put_object(Body=b'Started Processing Flag', Bucket=s3_bucket, Key=output_prefix + '/process_start_flag')
             s3.download_file(s3_bucket, s3_key, str(tmp_path))
@@ -49,15 +49,15 @@ if __name__ == "__main__":
                 # a bit hackish..  
                 global karada_run_frame_count
                 karada_run_frame_count = video_md['length']
-                print('[on metadata] total frames:: ' + str(karada_run_frame_count))
-                print('[on metadata] path: ' + tmp_path)
-                content_type = magic.from_file(tmp_path, mime=True)
+                print('[on metadata] total frames: ' + str(karada_run_frame_count))
+                print('[on metadata] path: ' + str(tmp_path))
+                content_type = magic.from_file(str(tmp_path), mime=True)
                 video_md['content_type'] = content_type
                 print('[on metadata] about to dump json')
                 md = json.dumps(video_md)
                 print('[on metadata] about to put_object')
                 s3.put_object(Body=md.encode('utf-8'), Bucket=s3_bucket, Key=output_prefix + '/upload_metadata.json')
-                magic.from_file("testdata/test.pdf")
+                print('[on metadata] just put to ' + output_prefix)
 
                 global results_md
                 results_md = json.dumps({'fps': video_md['fps'],
